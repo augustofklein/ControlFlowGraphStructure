@@ -1,0 +1,4 @@
+<bb 2>:
+if (i <= 0) goto <bb 4>; else goto <bb 3>;
+<bb 3>:
+if (i <= 1) goto <bb 4>; else goto <bb 6>;
