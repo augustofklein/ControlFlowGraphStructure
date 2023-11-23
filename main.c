@@ -70,7 +70,19 @@ char *busca_pal(char *p, char *pal){
     return p;
 }
 
-int isop(char c){
+char * buscaBloco(char *p, char *pal){
+
+	// Retiramos os espaços para buscar o dado
+	while (!verificaDigito(*p)) p++;
+
+	*pal++=*p++;
+    *pal='\0';	
+
+    return p;
+
+}
+
+int comandoHeOperacao(char c){
 
     char ops[]="><=!+-*%";
 
@@ -83,7 +95,7 @@ int isop(char c){
 char *busca_op(char *p, char *pal){
 
     while (*p==' '||*p=='\t') p++;
-    while (*p && isop(*p))
+    while (*p && comandoHeOperacao(*p))
 	    *pal++=*p++;
         *pal='\0';	
     
@@ -160,6 +172,8 @@ void processaImpressaoBlocosSucessores(void){
     int qtdRegistros = 0;
 
     while(listaBloco != NULL){
+		qtdRegistros = 0;
+		
         printf("Bloco: %d: ", listaBloco->numeroBloco);
 
         listaSucessores = listaBloco->proxSucessor;
@@ -185,6 +199,35 @@ void processaImpressaoBlocosSucessores(void){
 
 }
 
+void processaAdicaoSucessorBloco(char pal[]){
+
+	tBloco * listaBloco = inicioBloco;
+	tSucessor * listaSucessor;
+	tSucessor *sucessor;
+	int numeroSucessor = pal[0] - '0';
+
+	sucessor = (struct sucessor*)malloc(sizeof(tSucessor));
+	sucessor->succs = numeroSucessor;
+	sucessor->prox = NULL;
+
+	while(listaBloco->proxBloco != NULL){
+		listaBloco = listaBloco->proxBloco;
+	}
+
+	listaSucessor = listaBloco->proxSucessor;
+
+	if(listaSucessor == NULL){
+		listaBloco->proxSucessor = sucessor;
+	}else{
+		while(listaSucessor->prox != NULL){
+			listaSucessor = listaSucessor->prox;
+		}
+
+		listaSucessor->prox = sucessor;
+	}
+
+}
+
 int main(void){
 
     FILE *arq;
@@ -201,32 +244,43 @@ int main(void){
 		// Armazenamento da linha em ponteiro
 		char *p=strip(linha);
 
-		// Leitura do label e entramos no trecho do código
+		// Devolve o ponteiro na primeira ocorrência do caracater
         if (strstr(p,":")){
 			verificaEncontraDefinicaoBloco(linha);
-		    p=busca_label(p,lcod[pos].label,pos);
+		}else{
+			//p=busca_label(p,lcod[pos].label,pos);
 	        char pal[20];
 	        p=busca_pal(p,pal);
 
-	    	if (strcmp(pal,"goto")==0){
-		    	lcod[pos].inst=desvio;
-		    	busca_pal(p,lcod[pos].op1);
-		    	continue;	
+			if (strcmp(pal,"if")==0){
+				p++;
+				p++;
+				p=busca_pal(p,lcod[pos].op1);
+				p++;
+				p=busca_op(p,lcod[pos].op);
+				p++;
+				p=busca_pal(p,lcod[pos].op2);
+				p++;
+				p++;
+				p=busca_pal(p,pal); /*descarta goto*/
+				p++;
 			}
 
-	    	if (strcmp(pal,"if")==0){
-				p=busca_pal(p,lcod[pos].op1);
-				p=busca_op(p,lcod[pos].op);
-				p=busca_pal(p,lcod[pos].op2);
-				p=busca_pal(p,pal); /*descarta goto*/
-				p=busca_pal(p,lcod[pos].op3);
+			if (strcmp(pal,"goto")==0){
+		    	lcod[pos].inst=desvio;
+				p=buscaBloco(p,pal);
+				processaAdicaoSucessorBloco(pal);
+	    		continue;	
+			}
+
+			if(strcmp(pal,"else")==0){
 				continue;
 			}
 
 			// atribuicao
 			lcod[pos].inst=atrib;
 			strcpy(lcod[pos].op1,pal);
-			p=busca_op(p,pal); // descarta "="
+			p=busca_op(p,pal);
 			p=busca_pal(p,lcod[pos].op2);
 			p=busca_op(p,lcod[pos].op);
 			p=busca_pal(p,lcod[pos].op3);
