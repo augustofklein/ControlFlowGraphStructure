@@ -153,6 +153,38 @@ void processaInicializacaoListaSucessores(void){
 	inicioBloco = NULL;
 }
 
+void processaImpressaoBlocosSucessores(void){
+
+    tBloco * listaBloco = inicioBloco;
+    tSucessor *listaSucessores;
+    int qtdRegistros = 0;
+
+    while(listaBloco != NULL){
+        printf("Bloco: %d: ", listaBloco->numeroBloco);
+
+        listaSucessores = listaBloco->proxSucessor;
+
+        while(listaSucessores != NULL){
+            if(qtdRegistros == 0){
+                printf("succs { %d", listaSucessores->succs);
+            }else{
+                printf(" %d ", listaSucessores->succs);
+            }
+
+            qtdRegistros++;
+
+            listaSucessores = listaSucessores->prox;
+        }
+
+        if(qtdRegistros > 0){
+            printf("}\n");
+        }
+
+        listaBloco = listaBloco->proxBloco;
+    }
+
+}
+
 int main(void){
 
     FILE *arq;
@@ -212,4 +244,6 @@ int main(void){
     for (i=0;i<cntlabels;i++){
 	    printf("%s na linha %d\n",llabels[i].nome,llabels[i].linha);
 	}
+
+    processaImpressaoBlocosSucessores();
 }
