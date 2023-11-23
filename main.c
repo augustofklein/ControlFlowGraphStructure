@@ -124,7 +124,7 @@ void processaCriacaoNovoBlocoLista(char numero){
 	}
 }
 
-void verificaEncontraDefinicaoBloco(char linha[100]){
+int verificaEncontraDefinicaoBloco(char linha[100]){
 
 	int i = 0;
 
