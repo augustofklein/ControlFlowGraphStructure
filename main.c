@@ -239,7 +239,6 @@ int main(void){
 	processaInicializacaoListaSucessores();
 
     for (pos=0;fgets(linha,100,arq);pos++){
-	    //printf("Vou processar a linha %s",linha);
 	    
 		// Armazenamento da linha em ponteiro
 		char *p=strip(linha);
@@ -249,7 +248,6 @@ int main(void){
 			p++;
 			p=busca_pal(p,lcod[pos].label);
 			verificaEncontraDefinicaoBloco(linha);
-			//p=busca_label(p,lcod[pos].label,pos);
 			p++;
 			p++;
 	        p=busca_pal(p,pal);
