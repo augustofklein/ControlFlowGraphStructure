@@ -1,10 +1,10 @@
-<bb 2>:
-if (i <= 0) goto <bb 4>;
+<bb2>:if (i <= 0)
+goto <bb4>;
 else
 t0 = t0 + 1;
-goto <bb 3>;
-<bb 3>:
-if (i <= 1) goto <bb 4>;
+goto <bb3>;
+<bb3>:if (i <= 1)
+goto <bb4>;
 else
 t1 = t1 + 1;
-goto <bb 6>;
+goto <bb6>;

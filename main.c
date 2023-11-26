@@ -8,11 +8,13 @@ tlabel llabels[20];
 int cntlabels=0;
 
 typedef enum insts {cond,
+					condElse,
 			 		atrib,
 					desvio
 					} tinst;
 
 char nomeinst[][20]={"if",
+					 "else",
 				     "atrib",
 				     "goto"};
 
@@ -146,12 +148,9 @@ int verificaEncontraDefinicaoBloco(char linha[100]){
 			i++;
 			if(linha[i] == 'b'){
 				i++;
-				if(linha[i] == ' '){
-					i++;
-					if(verificaDigito(linha[i])){
-						processaCriacaoNovoBlocoLista(linha[i]);
-						return 1;
-					}
+				if(verificaDigito(linha[i])){
+					processaCriacaoNovoBlocoLista(linha[i]);
+					return 1;
 				}
 			}
 		}
@@ -233,23 +232,26 @@ int main(void){
     FILE *arq;
     arq=fopen("prog.c3e","rt");
     char linha[100];
+	char pal[20];
     int pos;
 	int i;
 
 	processaInicializacaoListaSucessores();
 
     for (pos=0;fgets(linha,100,arq);pos++){
-	    printf("Vou processar a linha %s",linha);
+	    //printf("Vou processar a linha %s",linha);
 	    
 		// Armazenamento da linha em ponteiro
 		char *p=strip(linha);
 
 		// Devolve o ponteiro na primeira ocorrência do caracater
         if (strstr(p,":")){
+			p++;
+			p=busca_pal(p,lcod[pos].label);
 			verificaEncontraDefinicaoBloco(linha);
-		}else{
 			//p=busca_label(p,lcod[pos].label,pos);
-	        char pal[20];
+			p++;
+			p++;
 	        p=busca_pal(p,pal);
 
 			if (strcmp(pal,"if")==0){
@@ -267,30 +269,49 @@ int main(void){
 			}
 
 			if (strcmp(pal,"goto")==0){
-		    	lcod[pos].inst=desvio;
 				p=buscaBloco(p,pal);
 				processaAdicaoSucessorBloco(pal);
 	    		continue;	
 			}
 
-			if(strcmp(pal,"else")==0){
-				continue;
-			}
-
-			// atribuicao
-			lcod[pos].inst=atrib;
-			strcpy(lcod[pos].op1,pal);
-			p=busca_op(p,pal);
-			p=busca_pal(p,lcod[pos].op2);
-			p=busca_op(p,lcod[pos].op);
-			p=busca_pal(p,lcod[pos].op3);
+			continue;
 		}
+
+		p=busca_pal(p,pal);
+
+		if(strcmp(pal,"else")==0){
+			lcod[pos].inst=condElse;
+			continue;
+		}
+
+		if (strcmp(pal,"goto")==0){
+		    lcod[pos].inst=desvio;
+			p++;
+			p++;
+			p=busca_pal(p,lcod[pos].label);
+			p=strip(lcod[pos].label);
+			strcpy(pal,lcod[pos].label);
+			p=buscaBloco(p,pal);
+			processaAdicaoSucessorBloco(pal);
+	    	continue;
+		}
+
+		// atribuicao
+		lcod[pos].inst=atrib;
+		strcpy(lcod[pos].op1,pal);
+		p=busca_op(p,pal);
+		p=busca_pal(p,lcod[pos].op2);
+		p=busca_op(p,lcod[pos].op);
+		p=busca_pal(p,lcod[pos].op3);
 	}
 
     for (i=0;i<pos;i++){
-	    printf("%s %s %s %s %s %s\n",lcod[i].label,nomeinst[lcod[i].inst],
-					                 lcod[i].op,lcod[i].op1,
-					                 lcod[i].op2,lcod[i].op3);
+	    printf("%s %s %s %s %s %s\n",lcod[i].label,
+									 nomeinst[lcod[i].inst],
+					                 lcod[i].op,
+									 lcod[i].op1,
+					                 lcod[i].op2,
+									 lcod[i].op3);
 	}
 
     printf("\nLista de labels:\n");
