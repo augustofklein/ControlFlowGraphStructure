@@ -245,11 +245,8 @@ int main(void){
 
 		// Devolve o ponteiro na primeira ocorrência do caracater
         if (strstr(p,":")){
-			p++;
-			p=busca_pal(p,lcod[pos].label);
+			p=busca_label(p,lcod[pos].label,pos);
 			verificaEncontraDefinicaoBloco(linha);
-			p++;
-			p++;
 	        p=busca_pal(p,pal);
 
 			if (strcmp(pal,"if")==0){
@@ -303,6 +300,8 @@ int main(void){
 		p=busca_pal(p,lcod[pos].op3);
 	}
 
+	printf("\nImpressão da estrutura do código:\n");
+
     for (i=0;i<pos;i++){
 	    printf("%s %s %s %s %s %s\n",lcod[i].label,
 									 nomeinst[lcod[i].inst],
@@ -312,11 +311,7 @@ int main(void){
 									 lcod[i].op3);
 	}
 
-    printf("\nLista de labels:\n");
-    
-    for (i=0;i<cntlabels;i++){
-	    printf("%s na linha %d\n",llabels[i].nome,llabels[i].linha);
-	}
+    printf("\nImpressão dos sucessores:\n");
 
     processaImpressaoBlocosSucessores();
 }
